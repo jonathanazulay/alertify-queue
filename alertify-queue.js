@@ -9,6 +9,8 @@ function someRandomString() {
 
 AlertifyQueue = {};
 
+AlertifyQueue.defaultSettings = {labels: {'ok': 'OK', 'cancel': 'Cancel'}};
+
 AlertifyQueue._queue = [];
 AlertifyQueue._queued = {};
 
@@ -77,6 +79,7 @@ AlertifyQueue.next = function () {
             AlertifyQueue.activeId = null;
             AlertifyQueue.next();
         });
+        AlertifyQueue.defaultSettings && alertify.set(AlertifyQueue.defaultSettings);
     } else {
         // There might still be objects in the queue so move on...
         AlertifyQueue.next();
