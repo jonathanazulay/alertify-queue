@@ -25,7 +25,7 @@ AlertifyQueue.getUniqueId = function () {
 };
 
 /* Add something to the queue */
-AlertifyQueue.add = function (type, content, callback, aid) {
+AlertifyQueue.add = function (type, content, callback, aid, alertifySet) {
     // If passed id is already inuse, return false
     if (aid && AlertifyQueue.idInUse(aid)) { return false; }
 
@@ -33,7 +33,7 @@ AlertifyQueue.add = function (type, content, callback, aid) {
     var gid = aid || AlertifyQueue.getUniqueId();
 
     // Save arguments to object and push to queue
-    AlertifyQueue._queued[gid] = {type: type, callback: callback, content: content};
+    AlertifyQueue._queued[gid] = {type: type, callback: callback, content: content, alertifySet: alertifySet};
     AlertifyQueue._queue.push(gid);
 
     // If no queue active or if active should be replaced, show next in queue
@@ -44,13 +44,13 @@ AlertifyQueue.add = function (type, content, callback, aid) {
 };
 
 /* Helper for confirm */
-AlertifyQueue.confirm = function (content, callback, uid) {
-    return AlertifyQueue.add('confirm', content, callback, uid);
+AlertifyQueue.confirm = function (content, callback, uid, alertifySet) {
+    return AlertifyQueue.add('confirm', content, callback, uid, alertifySet);
 };
 
 /* Helper for alert */
-AlertifyQueue.alert = function (content, callback, uid) {
-    return AlertifyQueue.add('alert', content, callback, uid);
+AlertifyQueue.alert = function (content, callback, uid, alertifySet) {
+    return AlertifyQueue.add('alert', content, callback, uid, alertifySet);
 };
 
 /* Shows next alert in queue (closes any active alerts) */
@@ -71,6 +71,7 @@ AlertifyQueue.next = function () {
     if (obj) {
         AlertifyQueue.activeId = nextId;
         delete AlertifyQueue._queued[nextId];
+        obj.alertifySet && alertify.set(obj.alertifySet);
         alertify[obj.type](obj.content, function (e) {
             obj.callback && obj.callback(e);
             AlertifyQueue.activeId = null;
@@ -93,4 +94,3 @@ AlertifyQueue.close = function (id) {
         delete AlertifyQueue._queued[id];
     }
 }
-
